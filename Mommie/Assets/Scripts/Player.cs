@@ -20,6 +20,8 @@ public class Player : MonoBehaviour {
 	public float LancerDeCoeur = 15;
 	private bool canSend = true;
     public SmoothCamera2D camera;
+    public Transform viseur;
+    public float delayLancer = 1;
 
 	SpriteRenderer sprite;
 	Animator anim;
@@ -43,11 +45,9 @@ public class Player : MonoBehaviour {
 		timeLeft -= Time.deltaTime;
 		//Debug.Log ("x = " + Input.GetAxisRaw ("Vertical") + ", y = " + Input.GetAxisRaw ("Horizontal"));
 		if( Input.GetAxisRaw ("Fire1")>0 && canSend){
-			Rigidbody2D tempCoeur = Instantiate (coeur, transform.position + new Vector3(direction.x, direction.y), Quaternion.identity).GetComponent<Rigidbody2D>();
-			tempCoeur.AddForce (direction * LancerDeCoeur, ForceMode2D.Impulse);
-			canSend = false;
+            StartCoroutine(PrepareLancer());
+            canSend = false;
             canMove = false;
-            camera.target = tempCoeur.transform;
 		}
 		if ( timeLeft < 0 )
 		{
@@ -58,13 +58,14 @@ public class Player : MonoBehaviour {
 
 	void FixedUpdate() {
 		CheckMaxVelocity ();
-		if (canMove) {
+        if (canMove) {
 			float tempX = Input.GetAxisRaw ("Horizontal"), tempY = Input.GetAxisRaw ("Vertical");
 			if (tempX != 0 || tempY != 0) {
 				direction.Set (tempX, tempY);
 				rb.AddForce((direction * speedMouvement * Time.deltaTime), ForceMode2D.Force);
-				//rb.AddForce (new Vector2 (Input.GetAxisRaw ("Horizontal") * speedMouvement, Input.GetAxisRaw ("Vertical") * speedMouvement));
-				isMoving = true;
+                viseur.localPosition = direction * 40;
+                //rb.AddForce (new Vector2 (Input.GetAxisRaw ("Horizontal") * speedMouvement, Input.GetAxisRaw ("Vertical") * speedMouvement));
+                isMoving = true;
 			} else {
 				isMoving = false;
 			}
@@ -90,6 +91,16 @@ public class Player : MonoBehaviour {
 
 			anim.SetBool ("Running", isMoving);
 		}
+        }
+        else
+        {
+            float tempX = Input.GetAxisRaw("Horizontal"), tempY = Input.GetAxisRaw("Vertical");
+            if (tempX != 0 || tempY != 0)
+            {
+                direction.Set(tempX, tempY);
+                viseur.localPosition = direction * 40;
+            }
+        }
 	}
 	void CheckMaxVelocity()
 	{
@@ -108,6 +119,14 @@ public class Player : MonoBehaviour {
 		yield return new WaitForSeconds (delayBeforeDeath);	
 		SceneManager.LoadScene ("Scene");
 	}
+
+    private IEnumerator PrepareLancer()
+    {
+        yield return new WaitForSeconds(delayLancer);
+        Rigidbody2D tempCoeur = Instantiate(coeur, transform.position + new Vector3(direction.x, direction.y), Quaternion.identity).GetComponent<Rigidbody2D>();
+        tempCoeur.AddForce(direction * LancerDeCoeur, ForceMode2D.Impulse);
+        camera.target = tempCoeur.transform;
+    }
 
     public void ReInitSendHeart()
     {

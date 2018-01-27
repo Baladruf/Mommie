@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Coeur : MonoBehaviour {
 
@@ -41,5 +42,6 @@ public class Coeur : MonoBehaviour {
         yield return new WaitForSeconds(DelayDeath);
         //animation mort
         Destroy(gameObject);
+        SceneManager.LoadScene("Scene");
     }
 }
