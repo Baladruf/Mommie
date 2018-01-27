@@ -14,13 +14,15 @@ public class Player : MonoBehaviour {
 	public float delayBeforeDeath = 1;
 	bool canMove = true;
 	float initalspeed;
-	[HideInInspector]
-	public bool isMoving = false;
+	private bool isMoving = false;
 	private Vector2 direction;
 	public GameObject coeur;
 	public float LancerDeCoeur = 15;
 	private bool canSend = true;
     public SmoothCamera2D camera;
+
+	SpriteRenderer sprite;
+	Animator anim;
 
 	void Awake(){
 		direction = new Vector2 (1, 1);
@@ -28,7 +30,8 @@ public class Player : MonoBehaviour {
 
 	void Start () {
 		rb = GetComponent<Rigidbody2D>();
-
+		anim = GetComponent<Animator> ();
+		sprite = GetComponent<SpriteRenderer> ();
 		//Setting
 		rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 		rb.drag = drag;
@@ -65,6 +68,27 @@ public class Player : MonoBehaviour {
 			} else {
 				isMoving = false;
 			}
+
+			//Animation
+
+
+			if (tempY > 0) {
+				anim.SetBool ("Up", true);
+				if (tempX < 0) {
+					sprite.flipX = false;
+				} else if (tempX > 0) {
+					sprite.flipX = true;
+				}
+			} else if (tempY < 0){
+				anim.SetBool ("Up", false);
+				if (tempX < 0) {
+					sprite.flipX = true;
+				} else if (tempX > 0) {
+					sprite.flipX = false;
+				}
+			}
+
+			anim.SetBool ("Running", isMoving);
 		}
 	}
 	void CheckMaxVelocity()
